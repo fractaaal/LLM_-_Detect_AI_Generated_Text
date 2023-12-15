@@ -69,6 +69,8 @@ tokenizer を修正したもう一度行うと LB：0.824 となった。
 
 ### 2023/12/14
 
+1. アンサンブル学習の利用
+
 アンサンブル学習の VotingClassifier を使用して多数決を行うようにした。
 LB の結果は 0.84 となり、現段階でベストスコアとなった。
 
@@ -101,4 +103,29 @@ ensemble = VotingClassifier(
 )
 ensemble.fit(train_x, train.label)
 
+```
+
+2. カスタムトークナイザーを追加
+
+アンサンブルのモデルに対し、トークナイザーを下記のように設定すると LB のスコア 0.89 となり、現時点でベストスコアとなった。
+
+`notebook/competitions/LLM_-_Detect_AI_Generated_Text/nb004/add_tokenizer.ipynb`
+
+```.python
+# ストップワードのロード
+stop_words = set(stopwords.words('english'))
+
+def clean_text(text):
+    # HTMLタグの削除
+    text = re.sub(r'<.*?>', '', text)
+    # 句読点、数字、特殊記号の削除
+    text = re.sub(r'[^\w\s]', '', text)
+    # 小文字化
+    text = text.lower()
+    return text
+
+# カスタムトークナイザー
+def tokenize(text):
+    tokens = word_tokenize(text)
+    return [word for word in tokens if word not in stop_words]
 ```
